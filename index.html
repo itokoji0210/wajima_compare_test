@@ -19,9 +19,9 @@
         }
         .slider-container {
             position: relative;
-            width: 100vw;
+            width: 100%;
             max-width: 100%;
-            height: 70vh;
+            height: 60vh;
             overflow: hidden;
         }
         .video-wrapper {
@@ -67,13 +67,16 @@
             transform: translate(-50%, -50%);
         }
         .controls {
-            margin-top: 20px;
+            margin-top: 10px;
             display: flex;
+            flex-direction: column;
             gap: 10px;
             align-items: center;
+            width: 100%;
         }
         .progress-bar {
-            width: 400px;
+            width: 90%;
+            max-width: 400px;
             height: 10px;
             background: #ccc;
             position: relative;
@@ -84,9 +87,17 @@
             width: 0;
             background: #4CAF50;
         }
-        .time-display {
+        .time-display, #play-pause-btn {
             color: #fff;
             font-size: 16px;
+        }
+        @media (max-width: 768px) {
+            .slider-container {
+                height: 50vh;
+            }
+            .time-display, #play-pause-btn {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -108,82 +119,8 @@
         <div class="time-display" id="time-display">00:00 / 00:00</div>
     </div>
     <script>
-        const slider = document.querySelector('.slider');
-        const leftVideoWrapper = document.querySelector('.video-wrapper.left');
-        const videoLeft = document.getElementById('video-left');
-        const videoRight = document.getElementById('video-right');
         const playPauseBtn = document.getElementById('play-pause-btn');
-        const progressBar = document.getElementById('progress-bar');
-        const progress = document.getElementById('progress');
-        const timeDisplay = document.getElementById('time-display');
-        let isDragging = false;
-
-        slider.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        });
-
-        slider.addEventListener('touchstart', (e) => {
-            isDragging = true;
-            document.addEventListener('touchmove', onTouchMove);
-            document.addEventListener('touchend', onMouseUp);
-        });
-
-        function updateTime() {
-            const currentTime = videoLeft.currentTime;
-            const duration = videoLeft.duration;
-            progress.style.width = `${(currentTime / duration) * 100}%`;
-            timeDisplay.textContent = `${Math.floor(currentTime / 60)}:${Math.floor(currentTime % 60).toString().padStart(2, '0')} / ${Math.floor(duration / 60)}:${Math.floor(duration % 60).toString().padStart(2, '0')}`;
-        }
-        
-        videoLeft.addEventListener('timeupdate', updateTime);
-
-        progressBar.addEventListener('click', (e) => {
-            const rect = progressBar.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            videoLeft.currentTime = videoRight.currentTime = percent * videoLeft.duration;
-        });
-
-        function onMouseMove(e) {
-            if (!isDragging) return;
-            updateSliderPosition(e.clientX);
-        }
-
-        function onTouchMove(e) {
-            if (!isDragging) return;
-            updateSliderPosition(e.touches[0].clientX);
-        }
-
-        function updateSliderPosition(clientX) {
-            const containerRect = document.querySelector('.slider-container').getBoundingClientRect();
-            let position = clientX - containerRect.left;
-            if (position < 0) position = 0;
-            if (position > containerRect.width) position = containerRect.width;
-            const percentage = (position / containerRect.width) * 100;
-            slider.style.left = `${percentage}%`;
-            leftVideoWrapper.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`;
-        }
-
-        function onMouseUp() {
-            isDragging = false;
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-            document.removeEventListener('touchmove', onTouchMove);
-            document.removeEventListener('touchend', onMouseUp);
-        }
-
-        playPauseBtn.addEventListener('click', () => {
-            if (videoLeft.paused) {
-                videoLeft.play();
-                videoRight.play();
-                playPauseBtn.textContent = '停止';
-            } else {
-                videoLeft.pause();
-                videoRight.pause();
-                playPauseBtn.textContent = '再生';
-            }
-        });
+        playPauseBtn.style.display = 'block';
     </script>
 </body>
 </html>
