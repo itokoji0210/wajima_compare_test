@@ -131,12 +131,20 @@
         const leftWrapper = document.querySelector('.video-wrapper.left');
         let isDragging = false;
 
-        function syncVideos() {
-            videoRight.currentTime = videoLeft.currentTime;
-        }
+        playPauseBtn.addEventListener('click', () => {
+            if (videoLeft.paused) {
+                videoLeft.play();
+                videoRight.play();
+                playPauseBtn.textContent = '⏸';
+            } else {
+                videoLeft.pause();
+                videoRight.pause();
+                playPauseBtn.textContent = '▶';
+            }
+        });
 
         videoLeft.addEventListener('timeupdate', () => {
-            syncVideos();
+            videoRight.currentTime = videoLeft.currentTime;
             const progressPercent = (videoLeft.currentTime / videoLeft.duration) * 100;
             progress.style.width = `${progressPercent}%`;
             timeDisplay.textContent = `${formatTime(videoLeft.currentTime)} / ${formatTime(videoLeft.duration)}`;
@@ -146,27 +154,6 @@
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        progressBar.addEventListener('click', (e) => {
-            const rect = progressBar.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            videoLeft.currentTime = videoRight.currentTime = percent * videoLeft.duration;
-        });
-
-        slider.addEventListener('mousedown', (e) => { e.preventDefault(); isDragging = true; });
-        document.addEventListener('mousemove', (e) => { if (isDragging) updateSliderPosition(e.clientX); });
-        document.addEventListener('mouseup', () => { isDragging = false; });
-
-        slider.addEventListener('touchstart', (e) => { e.preventDefault(); isDragging = true; });
-        document.addEventListener('touchmove', (e) => { if (isDragging) updateSliderPosition(e.touches[0].clientX); });
-        document.addEventListener('touchend', () => { isDragging = false; });
-
-        function updateSliderPosition(clientX) {
-            let position = (clientX / window.innerWidth) * 100;
-            position = Math.max(0, Math.min(100, position));
-            slider.style.left = `${position}%`;
-            leftWrapper.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
         }
     </script>
 </body>
