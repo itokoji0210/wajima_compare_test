@@ -48,21 +48,24 @@
             top: 0;
             bottom: 0;
             left: 50%;
-            width: 5px;
+            width: 20px;
             background: rgba(255, 255, 255, 0.8);
             cursor: ew-resize;
             z-index: 3;
+            border-radius: 50%;
+            transform: translateX(-50%);
         }
         .controls {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 10px;
             margin-top: 10px;
+            flex-wrap: wrap;
         }
         .controls button {
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 8px 16px;
+            font-size: 14px;
             cursor: pointer;
             background-color: #fff;
             border: none;
@@ -86,8 +89,8 @@
         }
         .time-display {
             color: white;
-            font-size: 16px;
-            margin-left: 20px;
+            font-size: 14px;
+            margin-left: 10px;
         }
     </style>
 </head>
