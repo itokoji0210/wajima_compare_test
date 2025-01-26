@@ -19,9 +19,9 @@
         }
         .slider-container {
             position: relative;
-            width: 100%;
+            width: 100vw;
             max-width: 100%;
-            height: 60vh;
+            height: 70vh;
             overflow: hidden;
         }
         .video-wrapper {
@@ -65,6 +65,33 @@
             background: #fff;
             border-radius: 50%;
             transform: translate(-50%, -50%);
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .progress-bar {
+            width: 90%;
+            max-width: 600px;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+        }
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: #4CAF50;
+            border-radius: 5px;
+        }
+        .time-display {
+            color: white;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -123,7 +150,7 @@
         slider.addEventListener('mousedown', () => { isDragging = true; });
         document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            let position = e.clientX / window.innerWidth * 100;
+            let position = (e.clientX / window.innerWidth) * 100;
             position = Math.max(0, Math.min(100, position));
             slider.style.left = `${position}%`;
             leftWrapper.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
