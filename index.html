@@ -154,9 +154,13 @@
             videoLeft.currentTime = videoRight.currentTime = percent * videoLeft.duration;
         });
 
-        slider.addEventListener('mousedown', () => { isDragging = true; });
+        slider.addEventListener('mousedown', (e) => { e.preventDefault(); isDragging = true; });
         document.addEventListener('mousemove', (e) => { if (isDragging) updateSliderPosition(e.clientX); });
         document.addEventListener('mouseup', () => { isDragging = false; });
+
+        slider.addEventListener('touchstart', (e) => { e.preventDefault(); isDragging = true; });
+        document.addEventListener('touchmove', (e) => { if (isDragging) updateSliderPosition(e.touches[0].clientX); });
+        document.addEventListener('touchend', () => { isDragging = false; });
 
         function updateSliderPosition(clientX) {
             let position = (clientX / window.innerWidth) * 100;
