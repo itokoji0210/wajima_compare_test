@@ -109,10 +109,10 @@
 <body>
     <div class="slider-container">
         <div class="video-wrapper left">
-            <video id="video-left" src="20240102_Goshima_3DGS.mp4" autoplay loop muted></video>
+            <video id="video-left" src="Mitsukejima_20240310_3DGS.mp4" autoplay loop muted></video>
         </div>
         <div class="video-wrapper right">
-            <video id="video-right" src="20241220_Goshima_3DGS.mp4" autoplay loop muted></video>
+            <video id="video-right" src="Mitsukejima_20230518_3DGS.mp4" autoplay loop muted></video>
         </div>
         <div class="slider"></div>
     </div>
@@ -126,30 +126,38 @@
     </div>
 
     <script>
-        const slider = document.querySelector('.slider');
-        const leftVideoWrapper = document.querySelector('.video-wrapper.left');
-        const container = document.querySelector('.slider-container');
+        const videoLeft = document.getElementById('video-left');
+        const videoRight = document.getElementById('video-right');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progress-container');
+        const timeDisplay = document.getElementById('time-display');
 
-        let isDragging = false;
-
-        function handleMove(event) {
-            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-            const rect = container.getBoundingClientRect();
-            let offset = clientX - rect.left;
-            offset = Math.max(0, Math.min(offset, rect.width));
-            const percent = (offset / rect.width) * 100;
-            slider.style.left = `${percent}%`;
-            leftVideoWrapper.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+        function updateProgress() {
+            const percent = (videoLeft.currentTime / videoLeft.duration) * 100;
+            progressBar.style.width = `${percent}%`;
+            timeDisplay.textContent = `${Math.floor(videoLeft.currentTime / 60)}:${Math.floor(videoLeft.currentTime % 60)}` +
+                                      ` / ${Math.floor(videoLeft.duration / 60)}:${Math.floor(videoLeft.duration % 60)}`;
         }
 
-        slider.addEventListener('mousedown', () => { isDragging = true; });
-        slider.addEventListener('touchstart', () => { isDragging = true; });
-
-        window.addEventListener('mousemove', (e) => { if (isDragging) handleMove(e); });
-        window.addEventListener('touchmove', (e) => { if (isDragging) handleMove(e); });
-
-        window.addEventListener('mouseup', () => { isDragging = false; });
-        window.addEventListener('touchend', () => { isDragging = false; });
+        videoLeft.addEventListener('timeupdate', updateProgress);
+        progressContainer.addEventListener('click', (e) => {
+            const rect = progressContainer.getBoundingClientRect();
+            const newTime = (e.clientX - rect.left) / rect.width * videoLeft.duration;
+            videoLeft.currentTime = newTime;
+            videoRight.currentTime = newTime;
+        });
+        playPauseBtn.addEventListener('click', () => {
+            if (videoLeft.paused) {
+                videoLeft.play();
+                videoRight.play();
+                playPauseBtn.textContent = '停止';
+            } else {
+                videoLeft.pause();
+                videoRight.pause();
+                playPauseBtn.textContent = '再生';
+            }
+        });
     </script>
 </body>
 </html>
