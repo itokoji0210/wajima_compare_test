@@ -23,6 +23,7 @@
             max-width: 1200px;
             height: 70vh;
             overflow: hidden;
+            touch-action: none;
         }
         .video-wrapper {
             position: absolute;
@@ -54,6 +55,7 @@
             cursor: ew-resize;
             z-index: 3;
             transform: translateX(-50%);
+            touch-action: none;
         }
         .slider::before {
             content: '';
@@ -129,21 +131,23 @@
         const leftWrapper = document.querySelector('.video-wrapper.left');
         let isDragging = false;
 
-        function syncVideos() {
-            videoRight.currentTime = videoLeft.currentTime;
-        }
-
         videoLeft.addEventListener('play', () => videoRight.play());
         videoLeft.addEventListener('pause', () => videoRight.pause());
-        videoLeft.addEventListener('timeupdate', syncVideos);
-
-        playPauseBtn.addEventListener('click', () => {
-            if (videoLeft.paused) {
-                videoLeft.play();
-            } else {
-                videoLeft.pause();
-            }
+        videoLeft.addEventListener('timeupdate', () => {
+            videoRight.currentTime = videoLeft.currentTime;
+            const progressPercent = (videoLeft.currentTime / videoLeft.duration) * 100;
+            progress.style.width = `${progressPercent}%`;
         });
+
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            videoLeft.currentTime = videoRight.currentTime = percent * videoLeft.duration;
+        });
+
+        slider.addEventListener('touchstart', (e) => { isDragging = true; e.preventDefault(); });
+        document.addEventListener('touchmove', (e) => { if (isDragging) updateSliderPosition(e.touches[0].clientX); });
+        document.addEventListener('touchend', () => { isDragging = false; });
 
         function updateSliderPosition(clientX) {
             let position = (clientX / window.innerWidth) * 100;
@@ -151,10 +155,6 @@
             slider.style.left = `${position}%`;
             leftWrapper.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
         }
-
-        slider.addEventListener('mousedown', () => { isDragging = true; });
-        document.addEventListener('mousemove', (e) => { if (isDragging) updateSliderPosition(e.clientX); });
-        document.addEventListener('mouseup', () => { isDragging = false; });
     </script>
 </body>
 </html>
