@@ -129,6 +129,9 @@
         const leftWrapper = document.querySelector('.video-wrapper.left');
         let isDragging = false;
 
+        videoLeft.addEventListener('play', () => videoRight.play());
+        videoLeft.addEventListener('pause', () => videoRight.pause());
+
         function syncVideos() {
             videoRight.currentTime = videoLeft.currentTime;
         }
@@ -136,12 +139,8 @@
         playPauseBtn.addEventListener('click', () => {
             if (videoLeft.paused) {
                 videoLeft.play();
-                videoRight.play();
-                playPauseBtn.textContent = '⏸';
             } else {
                 videoLeft.pause();
-                videoRight.pause();
-                playPauseBtn.textContent = '▶';
             }
         });
 
@@ -149,7 +148,6 @@
             syncVideos();
             const progressPercent = (videoLeft.currentTime / videoLeft.duration) * 100;
             progress.style.width = `${progressPercent}%`;
-            timeDisplay.textContent = `${Math.floor(videoLeft.currentTime / 60)}:${String(Math.floor(videoLeft.currentTime % 60)).padStart(2, '0')} / ${Math.floor(videoLeft.duration / 60)}:${String(Math.floor(videoLeft.duration % 60)).padStart(2, '0')}`;
         });
 
         function updateSliderPosition(clientX) {
@@ -159,9 +157,9 @@
             leftWrapper.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
         }
 
-        slider.addEventListener('touchstart', (e) => { isDragging = true; });
-        document.addEventListener('touchmove', (e) => { if (isDragging) updateSliderPosition(e.touches[0].clientX); });
-        document.addEventListener('touchend', () => { isDragging = false; });
+        slider.addEventListener('mousedown', () => { isDragging = true; });
+        document.addEventListener('mousemove', (e) => { if (isDragging) updateSliderPosition(e.clientX); });
+        document.addEventListener('mouseup', () => { isDragging = false; });
     </script>
 </body>
 </html>
