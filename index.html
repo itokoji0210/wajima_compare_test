@@ -142,20 +142,25 @@
             }
         });
 
-        slider.addEventListener('touchstart', (e) => { isDragging = true; e.preventDefault(); });
-        document.addEventListener('touchmove', (e) => { if (isDragging) updateSliderPosition(e.touches[0].clientX); });
-        document.addEventListener('touchend', () => { isDragging = false; });
-
-        slider.addEventListener('mousedown', () => { isDragging = true; });
-        document.addEventListener('mousemove', (e) => { if (isDragging) updateSliderPosition(e.clientX); });
-        document.addEventListener('mouseup', () => { isDragging = false; });
-
-        function updateSliderPosition(clientX) {
-            let position = (clientX / window.innerWidth) * 100;
-            position = Math.max(0, Math.min(100, position));
-            slider.style.left = `${position}%`;
-            leftWrapper.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
+        function updateProgress() {
+            const progressPercent = (videoLeft.currentTime / videoLeft.duration) * 100;
+            progress.style.width = `${progressPercent}%`;
+            timeDisplay.textContent = `${formatTime(videoLeft.currentTime)} / ${formatTime(videoLeft.duration)}`;
         }
+
+        function formatTime(time) {
+            const minutes = Math.floor(time / 60);
+            const seconds = Math.floor(time % 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            videoLeft.currentTime = videoRight.currentTime = percent * videoLeft.duration;
+        });
+
+        videoLeft.addEventListener('timeupdate', updateProgress);
     </script>
 </body>
 </html>
