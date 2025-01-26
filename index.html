@@ -7,30 +7,42 @@
     <style>
         body {
             margin: 0;
+            overflow: hidden;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
             background: #000;
-            overflow: hidden;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
         }
         .slider-container {
             position: relative;
             width: 100%;
-            max-width: 800px;
-            height: 60vh;
+            max-width: 1200px;
+            height: 70vh;
             overflow: hidden;
         }
         .video-wrapper {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
             height: 100%;
+            width: 100%;
+            display: flex;
         }
         .video-wrapper.left {
+            z-index: 2;
             clip-path: inset(0 50% 0 0);
+        }
+        .video-wrapper.right {
+            z-index: 1;
+        }
+        .video-wrapper video {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
         }
         .slider {
             position: absolute;
@@ -40,51 +52,62 @@
             width: 5px;
             background: rgba(255, 255, 255, 0.8);
             cursor: ew-resize;
-            z-index: 2;
+            z-index: 3;
+            transform: translateX(-50%);
         }
         .slider::before {
             content: '';
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             background: #fff;
             border-radius: 50%;
             transform: translate(-50%, -50%);
         }
         .controls {
             display: flex;
+            justify-content: center;
+            align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
+            width: 100%;
             margin-top: 10px;
         }
-        button, .progress-bar {
-            font-size: 18px;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-        }
         .progress-bar {
-            width: 60%;
+            width: 90%;
+            max-width: 600px;
             height: 10px;
             background: #333;
+            border-radius: 5px;
+            cursor: pointer;
             position: relative;
         }
         .progress {
             height: 100%;
-            width: 0;
+            width: 0%;
             background: #4CAF50;
+            border-radius: 5px;
+        }
+        .time-display, #play-pause-btn {
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div class="slider-container">
         <div class="video-wrapper left">
-            <video id="video-left" src="20240102_Goshima_3DGS.mp4" playsinline autoplay loop muted></video>
+            <video id="video-left" src="20240102_Goshima_3DGS.mp4" autoplay loop muted playsinline></video>
         </div>
         <div class="video-wrapper right">
-            <video id="video-right" src="20241220_Goshima_3DGS.mp4" playsinline autoplay loop muted></video>
+            <video id="video-right" src="20241220_Goshima_3DGS.mp4" autoplay loop muted playsinline></video>
         </div>
         <div class="slider" id="slider"></div>
     </div>
@@ -93,21 +116,24 @@
         <div class="progress-bar" id="progress-bar">
             <div class="progress" id="progress"></div>
         </div>
+        <div class="time-display" id="time-display">00:00 / 00:00</div>
     </div>
     <script>
+        const playPauseBtn = document.getElementById('play-pause-btn');
         const videoLeft = document.getElementById('video-left');
         const videoRight = document.getElementById('video-right');
-        const playPauseBtn = document.getElementById('play-pause-btn');
         const progressBar = document.getElementById('progress-bar');
         const progress = document.getElementById('progress');
+        const timeDisplay = document.getElementById('time-display');
         const slider = document.getElementById('slider');
-        let dragging = false;
+        const leftWrapper = document.querySelector('.video-wrapper.left');
+        let isDragging = false;
 
         function syncVideos() {
             videoRight.currentTime = videoLeft.currentTime;
         }
 
-        function togglePlayPause() {
+        playPauseBtn.addEventListener('click', () => {
             if (videoLeft.paused) {
                 videoLeft.play();
                 videoRight.play();
@@ -117,35 +143,31 @@
                 videoRight.pause();
                 playPauseBtn.textContent = '▶';
             }
-        }
-
-        videoLeft.addEventListener('play', () => videoRight.play());
-        videoLeft.addEventListener('pause', () => videoRight.pause());
-        videoLeft.addEventListener('seeked', syncVideos);
-        videoLeft.addEventListener('timeupdate', () => {
-            const percent = (videoLeft.currentTime / videoLeft.duration) * 100;
-            progress.style.width = `${percent}%`;
         });
 
-        playPauseBtn.addEventListener('click', togglePlayPause);
+        videoLeft.addEventListener('timeupdate', () => {
+            syncVideos();
+            const progressPercent = (videoLeft.currentTime / videoLeft.duration) * 100;
+            progress.style.width = `${progressPercent}%`;
+            timeDisplay.textContent = `${Math.floor(videoLeft.currentTime / 60)}:${String(Math.floor(videoLeft.currentTime % 60)).padStart(2, '0')} / ${Math.floor(videoLeft.duration / 60)}:${String(Math.floor(videoLeft.duration % 60)).padStart(2, '0')}`;
+        });
 
         progressBar.addEventListener('click', (e) => {
             const rect = progressBar.getBoundingClientRect();
             const percent = (e.clientX - rect.left) / rect.width;
-            videoLeft.currentTime = videoLeft.duration * percent;
-            syncVideos();
+            videoLeft.currentTime = videoRight.currentTime = percent * videoLeft.duration;
         });
 
-        slider.addEventListener('mousedown', () => dragging = true);
-        document.addEventListener('mousemove', (e) => {
-            if (dragging) {
-                let percent = (e.clientX / window.innerWidth) * 100;
-                percent = Math.max(0, Math.min(100, percent));
-                slider.style.left = `${percent}%`;
-                document.querySelector('.video-wrapper.left').style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
-            }
-        });
-        document.addEventListener('mouseup', () => dragging = false);
+        function updateSliderPosition(clientX) {
+            let position = (clientX / window.innerWidth) * 100;
+            position = Math.max(0, Math.min(100, position));
+            slider.style.left = `${position}%`;
+            leftWrapper.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
+        }
+
+        slider.addEventListener('mousedown', () => { isDragging = true; });
+        document.addEventListener('mousemove', (e) => { if (isDragging) updateSliderPosition(e.clientX); });
+        document.addEventListener('mouseup', () => { isDragging = false; });
     </script>
 </body>
 </html>
