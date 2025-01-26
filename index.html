@@ -13,6 +13,7 @@
             justify-content: center;
             height: 100vh;
             background: #000;
+            overflow: hidden;
         }
         .slider-container {
             position: relative;
@@ -80,10 +81,10 @@
 <body>
     <div class="slider-container">
         <div class="video-wrapper left">
-            <video id="video-left" src="video1.mp4" autoplay loop muted></video>
+            <video id="video-left" src="video1.mp4" playsinline autoplay loop muted></video>
         </div>
         <div class="video-wrapper right">
-            <video id="video-right" src="video2.mp4" autoplay loop muted></video>
+            <video id="video-right" src="video2.mp4" playsinline autoplay loop muted></video>
         </div>
         <div class="slider" id="slider"></div>
     </div>
@@ -106,6 +107,18 @@
             videoRight.currentTime = videoLeft.currentTime;
         }
 
+        function togglePlayPause() {
+            if (videoLeft.paused) {
+                videoLeft.play();
+                videoRight.play();
+                playPauseBtn.textContent = '⏸';
+            } else {
+                videoLeft.pause();
+                videoRight.pause();
+                playPauseBtn.textContent = '▶';
+            }
+        }
+
         videoLeft.addEventListener('play', () => videoRight.play());
         videoLeft.addEventListener('pause', () => videoRight.pause());
         videoLeft.addEventListener('seeked', syncVideos);
@@ -114,18 +127,13 @@
             progress.style.width = `${percent}%`;
         });
 
-        playPauseBtn.addEventListener('click', () => {
-            if (videoLeft.paused) {
-                videoLeft.play();
-            } else {
-                videoLeft.pause();
-            }
-        });
+        playPauseBtn.addEventListener('click', togglePlayPause);
 
         progressBar.addEventListener('click', (e) => {
             const rect = progressBar.getBoundingClientRect();
             const percent = (e.clientX - rect.left) / rect.width;
             videoLeft.currentTime = videoLeft.duration * percent;
+            syncVideos();
         });
 
         slider.addEventListener('mousedown', () => dragging = true);
