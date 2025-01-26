@@ -160,6 +160,17 @@
             videoLeft.currentTime = videoRight.currentTime = percent * videoLeft.duration;
         });
 
+        slider.addEventListener('pointerdown', () => { isDragging = true; });
+        document.addEventListener('pointermove', (e) => { if (isDragging) updateSliderPosition(e.clientX); });
+        document.addEventListener('pointerup', () => { isDragging = false; });
+
+        function updateSliderPosition(clientX) {
+            let position = (clientX / window.innerWidth) * 100;
+            position = Math.max(0, Math.min(100, position));
+            slider.style.left = `${position}%`;
+            leftWrapper.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
+        }
+
         videoLeft.addEventListener('timeupdate', updateProgress);
     </script>
 </body>
