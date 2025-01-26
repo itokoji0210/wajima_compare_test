@@ -23,7 +23,6 @@
             max-width: 1200px;
             height: 70vh;
             overflow: hidden;
-            touch-action: none;
         }
         .video-wrapper {
             position: absolute;
@@ -55,7 +54,6 @@
             cursor: ew-resize;
             z-index: 3;
             transform: translateX(-50%);
-            touch-action: none;
         }
         .slider::before {
             content: '';
@@ -154,6 +152,17 @@
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        slider.addEventListener('mousedown', () => { isDragging = true; });
+        document.addEventListener('mousemove', (e) => { if (isDragging) updateSliderPosition(e.clientX); });
+        document.addEventListener('mouseup', () => { isDragging = false; });
+
+        function updateSliderPosition(clientX) {
+            let position = (clientX / window.innerWidth) * 100;
+            position = Math.max(0, Math.min(100, position));
+            slider.style.left = `${position}%`;
+            leftWrapper.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
         }
     </script>
 </body>
