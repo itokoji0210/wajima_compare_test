@@ -22,7 +22,6 @@
             width: 100vw;
             max-width: 100%;
             height: 70vh;
-            max-height: 100%;
             overflow: hidden;
         }
         .video-wrapper {
@@ -72,7 +71,6 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
-            margin-top: 10px;
             flex-wrap: wrap;
             width: 100%;
         }
@@ -86,7 +84,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
         .progress-container {
-            width: 100%;
+            width: 90%;
             max-width: 600px;
             height: 10px;
             background: #333;
@@ -111,10 +109,47 @@
 <body>
     <div class="slider-container">
         <div class="video-wrapper left">
-            <video id="video-left" src="20240102_Goshima_3DGS.mp4" autoplay loop muted></video>
+            <video id="video-left" src="Mitsukejima_20240310_3DGS.mp4" autoplay loop muted></video>
         </div>
         <div class="video-wrapper right">
-            <video id="video-right" src="20241220_Goshima_3DGS.mp4" autoplay loop muted></video>
+            <video id="video-right" src="Mitsukejima_20230518_3DGS.mp4" autoplay loop muted></video>
         </div>
         <div class="slider"></div>
     </div>
+
+    <div class="progress-container" id="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="controls">
+        <button id="play-pause-btn">再生 / 停止</button>
+        <div class="time-display" id="time-display">00:00 / 00:00</div>
+    </div>
+
+    <script>
+        const slider = document.querySelector('.slider');
+        const leftVideoWrapper = document.querySelector('.video-wrapper.left');
+        const container = document.querySelector('.slider-container');
+
+        let isDragging = false;
+
+        function handleMove(event) {
+            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            const rect = container.getBoundingClientRect();
+            let offset = clientX - rect.left;
+            offset = Math.max(0, Math.min(offset, rect.width));
+            const percent = (offset / rect.width) * 100;
+            slider.style.left = `${percent}%`;
+            leftVideoWrapper.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+        }
+
+        slider.addEventListener('mousedown', () => { isDragging = true; });
+        slider.addEventListener('touchstart', () => { isDragging = true; });
+
+        window.addEventListener('mousemove', (e) => { if (isDragging) handleMove(e); });
+        window.addEventListener('touchmove', (e) => { if (isDragging) handleMove(e); });
+
+        window.addEventListener('mouseup', () => { isDragging = false; });
+        window.addEventListener('touchend', () => { isDragging = false; });
+    </script>
+</body>
+</html>
