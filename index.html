@@ -113,49 +113,28 @@
         <div class="time-display" id="time-display">00:00 / 00:00</div>
     </div>
     <script>
-        const playPauseBtn = document.getElementById('play-pause-btn');
-        const videoLeft = document.getElementById('video-left');
-        const videoRight = document.getElementById('video-right');
-        const progressBar = document.getElementById('progress-bar');
-        const progress = document.getElementById('progress');
-        const timeDisplay = document.getElementById('time-display');
         const slider = document.getElementById('slider');
         const leftWrapper = document.querySelector('.video-wrapper.left');
         let isDragging = false;
 
-        playPauseBtn.addEventListener('click', () => {
-            if (videoLeft.paused) {
-                videoLeft.play();
-                videoRight.play();
-                playPauseBtn.textContent = '⏸';
-            } else {
-                videoLeft.pause();
-                videoRight.pause();
-                playPauseBtn.textContent = '▶';
-            }
-        });
-
-        videoLeft.addEventListener('timeupdate', () => {
-            const progressPercent = (videoLeft.currentTime / videoLeft.duration) * 100;
-            progress.style.width = `${progressPercent}%`;
-            timeDisplay.textContent = `${Math.floor(videoLeft.currentTime / 60)}:${Math.floor(videoLeft.currentTime % 60).toString().padStart(2, '0')} / ${Math.floor(videoLeft.duration / 60)}:${Math.floor(videoLeft.duration % 60).toString().padStart(2, '0')}`;
-        });
-
-        progressBar.addEventListener('click', (e) => {
-            const rect = progressBar.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            videoLeft.currentTime = videoRight.currentTime = percent * videoLeft.duration;
-        });
-
-        slider.addEventListener('mousedown', () => { isDragging = true; });
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            let position = (e.clientX / window.innerWidth) * 100;
+        function updateSliderPosition(clientX) {
+            let position = (clientX / window.innerWidth) * 100;
             position = Math.max(0, Math.min(100, position));
             slider.style.left = `${position}%`;
             leftWrapper.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
+        }
+
+        slider.addEventListener('mousedown', () => { isDragging = true; });
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) updateSliderPosition(e.clientX);
         });
         document.addEventListener('mouseup', () => { isDragging = false; });
+
+        slider.addEventListener('touchstart', () => { isDragging = true; });
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) updateSliderPosition(e.touches[0].clientX);
+        });
+        document.addEventListener('touchend', () => { isDragging = false; });
     </script>
 </body>
 </html>
