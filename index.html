@@ -129,12 +129,13 @@
         const leftWrapper = document.querySelector('.video-wrapper.left');
         let isDragging = false;
 
-        videoLeft.addEventListener('play', () => videoRight.play());
-        videoLeft.addEventListener('pause', () => videoRight.pause());
-
         function syncVideos() {
             videoRight.currentTime = videoLeft.currentTime;
         }
+
+        videoLeft.addEventListener('play', () => videoRight.play());
+        videoLeft.addEventListener('pause', () => videoRight.pause());
+        videoLeft.addEventListener('timeupdate', syncVideos);
 
         playPauseBtn.addEventListener('click', () => {
             if (videoLeft.paused) {
@@ -142,12 +143,6 @@
             } else {
                 videoLeft.pause();
             }
-        });
-
-        videoLeft.addEventListener('timeupdate', () => {
-            syncVideos();
-            const progressPercent = (videoLeft.currentTime / videoLeft.duration) * 100;
-            progress.style.width = `${progressPercent}%`;
         });
 
         function updateSliderPosition(clientX) {
